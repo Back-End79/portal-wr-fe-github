@@ -22,6 +22,7 @@ import "../../../App.css";
 import { DatePicker } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import dayjs from "dayjs";
 
 const EditHoliday = ({ openEdit, setOpenEdit, onEditSuccess, idHoliday, setIdHoliday }) => {
   let methods = useForm({
@@ -33,6 +34,7 @@ const EditHoliday = ({ openEdit, setOpenEdit, onEditSuccess, idHoliday, setIdHol
   });
 
   const { control, handleSubmit, formState, setValue } = methods;
+  
 
   const { setDataAlert } = useContext(AlertContext);
 
@@ -48,7 +50,7 @@ const EditHoliday = ({ openEdit, setOpenEdit, onEditSuccess, idHoliday, setIdHol
     if (res.data.attributes) {
       const temp = res.data.attributes;
       setValue("notes", temp.notes);
-      setValue("date", null);
+      setValue("date", dayjs(temp.date));
     }
   };
 
@@ -118,8 +120,6 @@ const EditHoliday = ({ openEdit, setOpenEdit, onEditSuccess, idHoliday, setIdHol
                                 label="Holiday Date"
                                 placeholder="Select Date"
                                 className="input-field-crud"
-                                value={field.value}
-                                onChange={(value) => field.onChange(value.format("YYYY-MM-DD"))}
                                 sx={{
                                   width: "100%",
                                 }}

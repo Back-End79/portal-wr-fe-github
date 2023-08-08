@@ -7,7 +7,7 @@ import {
   DialogTitle
 } from "@mui/material";
 import React, { useContext, useEffect, useState } from "react";
-import DataTable from "../../Component/DataTable";
+import DataTable from "../../Component/DataTable/holiday";
 import SideBar from '../../Component/Sidebar';
 import { AlertContext } from "../../context";
 import client from "../../global/client";
@@ -47,6 +47,8 @@ const MasterHoliday = () => {
   const [openEdit, setOpenEdit] = useState(false)
   const [openUpload, setOpenUpload] = useState(false)
   const [idHoliday, setIdHoliday] = useState(null)
+  const [month, setMonth] = useState(null)
+  const [year, setYear] = useState(null)
   const { setDataAlert } = useContext(AlertContext)
   const [loading, setLoading] = useState(false)
   const [filter, setFilter] = useState({
@@ -54,9 +56,12 @@ const MasterHoliday = () => {
     size: 10,
     sortName: 'date',
     sortType: 'asc',
-    month: null,
-    year: null
+    month: month,
+    year: year
   })
+
+  console.log({year});
+  console.log({month});
 
 
   const handleClickOpen = (id) => {
@@ -69,11 +74,14 @@ const MasterHoliday = () => {
   }, [filter])
 
   const getData = async () => {
-    let endpoint = ''
-    if(filter.month != null || filter.year != null){
-      endpoint =  `/holiday?page=${filter.page}&size=${filter.size}&sort=${filter.sortName},${filter.sortType}&month=${filter.month}&year=${filter.year}`
-    } else {
-      endpoint = `/holiday?page=${filter.page}&size=${filter.size}&sort=${filter.sortName},${filter.sortType}`
+    let endpoint = `/holiday?page=${filter.page}&size=${filter.size}&sort=${filter.sortName},${filter.sortType}`;
+
+    if (filter.month !== null) {
+      endpoint += `&month=${filter.month}`;
+    }
+  
+    if (filter.year !== null) {
+      endpoint += `&year=${filter.year}`;
     }
 
     setLoading(true)
@@ -142,14 +150,28 @@ const MasterHoliday = () => {
     setOpenEdit(true)
   }
 
+  const handleMonthFilter = (month) => {
+    setFilter({
+      ...filter,
+      month
+    });
+  }
+
+  const handleYearFilter = (year) => {
+    setFilter({
+      ...filter,
+      year
+    });
+  }
+
   const onFilter = (dataFilter) => {
     setFilter({
       page: dataFilter.page,
       size: dataFilter.pageSize,
       sortName: dataFilter.sorting.field !== '' ? dataFilter.sorting[0].field : 'date',
       sortType: dataFilter.sorting.sort !== '' ? dataFilter.sorting[0].sort : 'asc',
-      month: filter.month,
-      year: filter.year
+      month: month,
+      year: year
     })
   }
 
@@ -178,17 +200,18 @@ const MasterHoliday = () => {
   return (
     <div>
       <SideBar>
-      {/* Untuk ui filter masih belum bisa dikarenakan searchBar saya belum tahu cara menggantinya */}
       <DataTable
           title="Holiday"
           data={data}
           loading={loading}
           totalData={totalData}
           columns={columns}
+          handleChangeMonthFilter={(value) => handleMonthFilter(value.format("MM"))}
+          handleChangeYearFilter={(value) => handleYearFilter(value.format("YYYY"))}
           onFilter={(dataFilter => onFilter(dataFilter))}
           onAdd={() => handleAdd()}
-          onImport={() => handleUpload()}
-          onDetail={(id) => handleEdit(id)}
+          onUpload={() => handleUpload()}
+          onEdit={(id) => handleEdit(id)}
           onDelete={(id) => handleClickOpen(id)}
         />
         <Dialog

@@ -22,6 +22,7 @@ const UploadHoliday = ({ openUpload, setOpenUpload, onSaveSuccess }) => {
   const downloadUrl = `${process.env.REACT_APP_BASE_API}/holiday/download?bucketName=workingreport-dev&objectName=template_import_holiday.xlsx`;
   const { setDataAlert } = useContext(AlertContext);
   const [uploadedFile, setUploadedFile] = useState(null);
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
 
   const onSave = async (event) => {
     event.preventDefault()
@@ -64,16 +65,34 @@ const UploadHoliday = ({ openUpload, setOpenUpload, onSaveSuccess }) => {
     setUploadedFile(file);
   }, []);
 
+  // const handleDragOver = useCallback((event) => {
+  //   event.preventDefault();
+  //   // alert("DRAG FILE")
+  // }, []);
+
+  // const handleDrop = useCallback((event) => {
+  //   event.preventDefault();
+  //   alert("DROP FILE");
+  //   // Handle the dropped file here
+  // }, []);
+
   const handleDragOver = useCallback((event) => {
     event.preventDefault();
+    setIsDraggingOver(true);
+  }, []);
+
+  const handleDragLeave = useCallback(() => {
+    setIsDraggingOver(false);
   }, []);
 
   const handleDrop = useCallback((event) => {
     event.preventDefault();
-    alert("DROP FILE");
-    // Handle the dropped file here
+    setIsDraggingOver(false);
+    const file = event.dataTransfer.files[0];
+    console.log(file);
+    setUploadedFile(file);
   }, []);
-
+  
   const handleClose = () => {
     setUploadedFile(null); 
     setOpenUpload(false);
@@ -120,17 +139,19 @@ const UploadHoliday = ({ openUpload, setOpenUpload, onSaveSuccess }) => {
                 <AccordionDetails>
                   <Grid container rowSpacing={2}>
                     <Grid item xs={12}>
-                      <label>
+                      <label
+                      onDragOver={handleDragOver}
+                      onDragLeave={handleDragLeave}
+                      onDrop={handleDrop}>
                         <div
-                          style={{
-                            border: "2px dashed #ddd",
+                           style={{
+                            border: isDraggingOver ? "2px dashed #0078D7" : "2px dashed #ddd",
                             borderRadius: "4px",
                             padding: "20px",
                             textAlign: "center",
                             cursor: "pointer",
                           }}
-                          onDragOver={handleDragOver}
-                          onDrop={handleDrop}
+                          
                         >
                           <TextField type="file" name="file" style={{ display: "none" }} onChange={handleFileChange} />
                           <UploadFileOutlined fontSize="large" style={{ color: "#0078D7" }} />
